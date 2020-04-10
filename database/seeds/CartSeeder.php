@@ -1,5 +1,6 @@
 <?php
 
+use App\Cart;
 use Illuminate\Database\Seeder;
 
 class CartSeeder extends Seeder
@@ -11,6 +12,6 @@ class CartSeeder extends Seeder
      */
     public function run()
     {
-        //
+        factory(Cart::class,9)->create();
     }
 }

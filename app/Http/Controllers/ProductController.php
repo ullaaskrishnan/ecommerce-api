@@ -9,6 +9,12 @@ use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
+    public function __construct()
+    { 
+        $this->middleware('auth:api_admin',['except'=>['index','show']]);
+               
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -20,15 +26,7 @@ class ProductController extends Controller
         return ProductCollection::collection(Product::all());
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
+    
 
     /**
      * Store a newly created resource in storage.
@@ -38,7 +36,26 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'sku' => 'required',
+            'name' => 'required',
+            'description' => 'required',
+            'price' => 'required',
+            'stock' => 'required',
+        ]);
+
+        $product = new Product;
+        $product->sku = $request->sku ;
+        $product->Name = $request->name ;
+        $product->description = $request->description ;
+        $product->price = $request->price ;
+        $product->UnitsInStock = $request->stock ;
+        $product->save();
+
+        return response([
+            'data' => new ProductResource($product)
+        ],201);
+         
     }
 
     /**
@@ -60,7 +77,7 @@ class ProductController extends Controller
      */
     public function edit(Product $product)
     {
-        //
+        
     }
 
     /**
@@ -72,7 +89,23 @@ class ProductController extends Controller
      */
     public function update(Request $request, Product $product)
     {
-        //
+        
+         
+        if ($request->has('name')) {
+            $request['Name'] = $request->name;
+            unset($request['name']);
+        }
+
+        if ($request->has('stock')) {
+            $request['UnitsInStock'] = $request->stock;
+            unset($request['stock']);
+        }
+
+        $product->update($request->all());
+
+        return response([
+            'data' => new ProductResource($product)
+        ],201);
     }
 
     /**
@@ -83,6 +116,8 @@ class ProductController extends Controller
      */
     public function destroy(Product $product)
     {
-        //
+        $product->delete();
+
+        return response(null,204);
     }
 }
